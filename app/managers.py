@@ -5,8 +5,8 @@ from app.models import Actor
 
 class ActorManager:
     def __init__(self, table_name: str, db_name: str) -> None:
-        self.table_name = table_name
         self.db_name = db_name
+        self.table_name = table_name
         self._connection = sqlite3.connect(self.db_name)
 
     def create(self, first_name: str, last_name: str) -> None:
@@ -21,15 +21,16 @@ class ActorManager:
         users = self._connection.execute(
             f"SELECT * FROM {self.table_name}"
         )
-        if not users:
+        rows = users.fetchall()
+        if not rows:
             return []
 
-        return [Actor(*user) for user in users]
+        return [Actor(*user) for user in rows]
 
     def update(self, pk: int, new_first_name: str, new_last_name: str) -> None:
         self._connection.execute(
             f"UPDATE {self.table_name} "
-            f"SET (first_name, last_name ) = (?, ?) "
+            f"SET first_name = ?, last_name = ? "
             f"WHERE id = ? ",
             (new_first_name, new_last_name, pk)
         )
